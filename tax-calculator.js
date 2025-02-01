@@ -38,6 +38,12 @@ function calculateOldRegimeTax(income, deductions) {
     // Calculate taxable income after all deductions
     let taxableIncome = income;
     
+    // Exempt Income
+    taxableIncome = Math.max(0, taxableIncome - (deductions.hra || 0));
+    taxableIncome = Math.max(0, taxableIncome - Math.min(deductions.lta || 0, 200000));
+    taxableIncome = Math.max(0, taxableIncome - (deductions.child_education || 0));
+    taxableIncome = Math.max(0, taxableIncome - (deductions.transport_allowance || 0));
+    
     // Standard Deduction
     taxableIncome = Math.max(0, taxableIncome - deductions.standardDeduction);
     
@@ -228,6 +234,10 @@ function calculateTax() {
     // Get all deduction inputs
     const deductions = {
         standardDeduction: 50000,
+        hra: parseFloat(document.getElementById('hra').value) || 0,
+        lta: parseFloat(document.getElementById('lta').value) || 0,
+        child_education: parseFloat(document.getElementById('child_education').value) || 0,
+        transport_allowance: parseFloat(document.getElementById('transport_allowance').value) || 0,
         section80c: parseFloat(document.getElementById('section80c').value) || 0,
         section80ccd1b: parseFloat(document.getElementById('section80ccd1b').value) || 0,
         section80d: parseFloat(document.getElementById('section80d').value) || 0,
