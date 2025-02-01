@@ -13,340 +13,157 @@
 
         gtag('config', 'G-2C50DSHJWM');
     </script>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        body {
-            min-height: 100vh;
-            background: linear-gradient(135deg, #00b4db, #0083b0);
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-        }
-
-        h1 {
-            text-align: center;
-            color: #333;
-            margin-bottom: 30px;
-        }
-
-        .input-group {
-            margin-bottom: 20px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 8px;
-            color: #555;
-            font-weight: 600;
-        }
-
-        input[type="number"] {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #ddd;
-            border-radius: 6px;
-            font-size: 16px;
-            transition: border-color 0.3s;
-        }
-
-        input[type="number"]:focus {
-            outline: none;
-            border-color: #0083b0;
-        }
-
-        button {
-            width: 100%;
-            padding: 12px;
-            background: #0083b0;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-size: 16px;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-
-        button:hover {
-            background: #006d94;
-        }
-
-        .result {
-            margin-top: 30px;
-            padding: 20px;
-            background: #f8f9fa;
-            border-radius: 6px;
-            display: none;
-        }
-
-        .result.show {
-            display: block;
-        }
-
-        .tax-breakdown {
-            margin-top: 20px;
-        }
-
-        .tax-slab {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 10px;
-            padding: 8px;
-            background: white;
-            border-radius: 4px;
-        }
-
-        .total-tax {
-            margin-top: 20px;
-            font-weight: bold;
-            font-size: 1.2em;
-            color: #0083b0;
-        }
-
-        .comparison-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-bottom: 20px;
-        }
-
-        .tax-column {
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        .tax-savings {
-            text-align: center;
-            padding: 20px;
-            background: white;
-            border-radius: 8px;
-            margin-top: 20px;
-        }
-
-        .savings-amount {
-            font-size: 1.4em;
-            color: #666;
-            margin-top: 10px;
-        }
-
-        .savings-amount.positive {
-            color: #28a745;
-            font-weight: bold;
-        }
-
-        @media (max-width: 768px) {
-            .comparison-container {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .info-text {
-            color: #666;
-            font-size: 0.9em;
-            margin-bottom: 15px;
-            font-style: italic;
-        }
-    </style>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    <div class="container">
+    <div class="page-container">
         <h1>Income Tax Calculator</h1>
-        <div class="input-group">
-            <label for="income">Enter Your Annual Income (₹)</label>
-            <input type="number" id="income" placeholder="Enter amount">
-        </div>
-        <button onclick="calculateTax()">Calculate Tax</button>
-        
-        <div class="result" id="result">
-            <div class="comparison-container">
-                <div class="tax-column">
-                    <h3>New Tax Regime (2023-24)</h3>
-                    <div class="info-text">After ₹75,000 Standard Deduction</div>
-                    <div class="tax-breakdown" id="oldTaxBreakdown"></div>
-                    <div class="total-tax" id="oldTotalTax"></div>
+        <div class="container">
+            <div class="input-section">
+                <div class="input-group">
+                    <label for="income">Annual Income (₹)</label>
+                    <input type="number" id="income" placeholder="Enter amount">
                 </div>
-                <div class="tax-column">
-                    <h3>New Tax Regime (2024-25)</h3>
-                    <div class="info-text">After ₹75,000 Standard Deduction</div>
-                    <div class="tax-breakdown" id="newTaxBreakdown"></div>
-                    <div class="total-tax" id="newTotalTax"></div>
+                
+                <div class="deductions-container">
+                    <h3>Deductions (Old Regime)</h3>
+                    
+                    <!-- Investment Related -->
+                    <div class="deduction-category">
+                        <h4>Investment Related</h4>
+                        <div class="input-group">
+                            <label for="section80c" title="Investments in LIC, EPF, PPF, NSC, Tax-saving FD, etc.">
+                                Section 80C (Max: ₹1.5L)
+                            </label>
+                            <input type="number" id="section80c" placeholder="Enter amount">
+                        </div>
+                        <div class="input-group">
+                            <label for="section80ccd1b" title="Additional NPS contribution">
+                                Section 80CCD(1B) - NPS (Max: ₹50,000)
+                            </label>
+                            <input type="number" id="section80ccd1b" placeholder="Enter amount">
+                        </div>
+                    </div>
+
+                    <!-- Health Related -->
+                    <div class="deduction-category">
+                        <h4>Health Related</h4>
+                        <div class="input-group">
+                            <label for="section80d" title="Medical Insurance Premium">
+                                Section 80D - Health Insurance (Max: ₹25,000)
+                            </label>
+                            <input type="number" id="section80d" placeholder="Enter amount">
+                        </div>
+                        <div class="input-group">
+                            <label for="section80d_parents" title="Parents' Medical Insurance Premium">
+                                Section 80D - Parents Insurance (Max: ₹50,000)
+                            </label>
+                            <input type="number" id="section80d_parents" placeholder="Enter amount">
+                        </div>
+                    </div>
+
+                    <!-- Home Loan Related -->
+                    <div class="deduction-category">
+                        <h4>Home Loan Related</h4>
+                        <div class="input-group">
+                            <label for="section24b" title="Interest on Home Loan">
+                                Section 24(b) (Max: ₹2L)
+                            </label>
+                            <input type="number" id="section24b" placeholder="Enter amount">
+                        </div>
+                        <div class="input-group">
+                            <label for="section80ee" title="Additional Interest for First Time Home Buyers">
+                                Section 80EE (Max: ₹50,000)
+                            </label>
+                            <input type="number" id="section80ee" placeholder="Enter amount">
+                        </div>
+                    </div>
+
+                    <!-- Other Deductions -->
+                    <div class="deduction-category">
+                        <h4>Other Deductions</h4>
+                        <div class="input-group">
+                            <label for="section80e" title="Education Loan Interest">
+                                Section 80E (No Limit)
+                            </label>
+                            <input type="number" id="section80e" placeholder="Enter amount">
+                        </div>
+                        <div class="input-group">
+                            <label for="section80g" title="Charitable Donations">
+                                Section 80G (As per rules)
+                            </label>
+                            <input type="number" id="section80g" placeholder="Enter amount">
+                        </div>
+                        <div class="input-group">
+                            <label for="section80tta" title="Savings Account Interest">
+                                Section 80TTA (Max: ₹10,000)
+                            </label>
+                            <input type="number" id="section80tta" placeholder="Enter amount">
+                        </div>
+                    </div>
+                </div>
+
+                <button onclick="calculateTax()">Calculate Tax</button>
+            </div>
+
+            <div class="results-section" id="result">
+                <div class="initial-state" id="initialState">
+                    <div class="hot-news">
+                        <h2>🎉 Revised Tax Calculator Now Available!</h2>
+                        <p>Calculate your taxes under the new regime announced in Budget 2025. Compare with old regimes to find your best option.</p>
+                        <a href="https://www.indiabudget.gov.in/" target="_blank" class="budget-link">View Budget Details →</a>
+                    </div>
+                </div>
+                
+                <div class="calculation-results" id="calculationResults">
+                    <div class="tax-savings" id="taxSavings">
+                        <h3>Your Tax Analysis</h3>
+                        <div id="savingsContent"></div>
+                    </div>
+                    <div class="comparison-container">
+                        <div class="tax-column">
+                            <h3>Old Regime</h3>
+                            <div class="info-text">With Standard & Other Deductions</div>
+                            <div class="tax-breakdown" id="oldRegimeTaxBreakdown"></div>
+                            <div class="total-tax" id="oldRegimeTotalTax"></div>
+                        </div>
+                        <div class="tax-column">
+                            <h3>New Regime</h3>
+                            <div class="info-text">After ₹75,000 Standard Deduction</div>
+                            <div class="tax-breakdown" id="oldTaxBreakdown"></div>
+                            <div class="total-tax" id="oldTotalTax"></div>
+                        </div>
+                        <div class="tax-column highlighted">
+                            <h3>Revised New Regime</h3>
+                            <div class="info-text">After ₹75,000 Standard Deduction</div>
+                            <div class="tax-breakdown" id="newTaxBreakdown"></div>
+                            <div class="total-tax" id="newTotalTax"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="tax-savings" id="taxSavings"></div>
         </div>
     </div>
 
-    <script>
-        function calculateTax() {
-            const income = parseFloat(document.getElementById('income').value);
-            // Apply standard deduction of 75000
-            const taxableIncome = Math.max(0, income - 75000);
-            
-            // Calculate old tax regime (2023-24)
-            const oldTax = calculateOldTax(taxableIncome);
-            // Calculate new tax regime (2024-25)
-            const newTax = calculateNewTax(taxableIncome);
-            
-            displayResults(oldTax, newTax);
-        }
+    <!-- Add this after the container div -->
+    <div class="loading-container">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">Calculating your tax savings...</div>
+        </div>
+    </div>
 
-        function calculateOldTax(income) {
-            let tax = 0;
-            let breakdown = [];
+    <footer class="footer">
+        <a href="https://github.com/sukeesh" target="_blank" class="developer-link">
+            <svg viewBox="0 0 16 16" fill="currentColor">
+                <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+            </svg>
+            Developed by Sukeesh
+        </a>
+    </footer>
 
-            if (income <= 300000) {
-                tax = 0;
-                breakdown.push({slab: "0 - 3,00,000", amount: income, rate: 0, tax: 0});
-            } else {
-                if (income > 300000) {
-                    const taxableAmount = Math.min(income - 300000, 400000);
-                    const slabTax = taxableAmount * 0.05;
-                    tax += slabTax;
-                    breakdown.push({slab: "3,00,001 - 7,00,000", amount: taxableAmount, rate: 5, tax: slabTax});
-                }
-                
-                if (income > 700000) {
-                    const taxableAmount = Math.min(income - 700000, 300000);
-                    const slabTax = taxableAmount * 0.10;
-                    tax += slabTax;
-                    breakdown.push({slab: "7,00,001 - 10,00,000", amount: taxableAmount, rate: 10, tax: slabTax});
-                }
-                
-                if (income > 1000000) {
-                    const taxableAmount = Math.min(income - 1000000, 200000);
-                    const slabTax = taxableAmount * 0.15;
-                    tax += slabTax;
-                    breakdown.push({slab: "10,00,001 - 12,00,000", amount: taxableAmount, rate: 15, tax: slabTax});
-                }
-                
-                if (income > 1200000) {
-                    const taxableAmount = Math.min(income - 1200000, 300000);
-                    const slabTax = taxableAmount * 0.20;
-                    tax += slabTax;
-                    breakdown.push({slab: "12,00,001 - 15,00,000", amount: taxableAmount, rate: 20, tax: slabTax});
-                }
-                
-                if (income > 1500000) {
-                    const taxableAmount = income - 1500000;
-                    const slabTax = taxableAmount * 0.30;
-                    tax += slabTax;
-                    breakdown.push({slab: "Above 15,00,000", amount: taxableAmount, rate: 30, tax: slabTax});
-                }
-            }
-            return { tax, breakdown };
-        }
-
-        function calculateNewTax(income) {
-            let tax = 0;
-            let breakdown = [];
-
-            if (income <= 400000) {
-                tax = 0;
-                breakdown.push({slab: "0 - 4,00,000", amount: income, rate: 0, tax: 0});
-            } else {
-                if (income > 400000) {
-                    const taxableAmount = Math.min(income - 400000, 400000);
-                    const slabTax = taxableAmount * 0.05;
-                    tax += slabTax;
-                    breakdown.push({slab: "4,00,001 - 8,00,000", amount: taxableAmount, rate: 5, tax: slabTax});
-                }
-                
-                if (income > 800000) {
-                    const taxableAmount = Math.min(income - 800000, 400000);
-                    const slabTax = taxableAmount * 0.10;
-                    tax += slabTax;
-                    breakdown.push({slab: "8,00,001 - 12,00,000", amount: taxableAmount, rate: 10, tax: slabTax});
-                }
-                
-                if (income > 1200000) {
-                    const taxableAmount = Math.min(income - 1200000, 400000);
-                    const slabTax = taxableAmount * 0.15;
-                    tax += slabTax;
-                    breakdown.push({slab: "12,00,001 - 16,00,000", amount: taxableAmount, rate: 15, tax: slabTax});
-                }
-                
-                if (income > 1600000) {
-                    const taxableAmount = Math.min(income - 1600000, 400000);
-                    const slabTax = taxableAmount * 0.20;
-                    tax += slabTax;
-                    breakdown.push({slab: "16,00,001 - 20,00,000", amount: taxableAmount, rate: 20, tax: slabTax});
-                }
-                
-                if (income > 2000000) {
-                    const taxableAmount = Math.min(income - 2000000, 400000);
-                    const slabTax = taxableAmount * 0.25;
-                    tax += slabTax;
-                    breakdown.push({slab: "20,00,001 - 24,00,000", amount: taxableAmount, rate: 25, tax: slabTax});
-                }
-                
-                if (income > 2400000) {
-                    const taxableAmount = income - 2400000;
-                    const slabTax = taxableAmount * 0.30;
-                    tax += slabTax;
-                    breakdown.push({slab: "Above 24,00,000", amount: taxableAmount, rate: 30, tax: slabTax});
-                }
-            }
-            return { tax, breakdown };
-        }
-
-        function displayResults(oldTax, newTax) {
-            const resultDiv = document.getElementById('result');
-            const oldBreakdownDiv = document.getElementById('oldTaxBreakdown');
-            const newBreakdownDiv = document.getElementById('newTaxBreakdown');
-            const oldTotalTaxDiv = document.getElementById('oldTotalTax');
-            const newTotalTaxDiv = document.getElementById('newTotalTax');
-            const taxSavingsDiv = document.getElementById('taxSavings');
-            
-            // Display old tax breakdown
-            oldBreakdownDiv.innerHTML = '';
-            oldTax.breakdown.forEach(slab => {
-                oldBreakdownDiv.innerHTML += `
-                    <div class="tax-slab">
-                        <span>₹${slab.slab} (${slab.rate}%)</span>
-                        <span>₹${slab.tax.toFixed(2)}</span>
-                    </div>
-                `;
-            });
-            
-            // Display new tax breakdown
-            newBreakdownDiv.innerHTML = '';
-            newTax.breakdown.forEach(slab => {
-                newBreakdownDiv.innerHTML += `
-                    <div class="tax-slab">
-                        <span>₹${slab.slab} (${slab.rate}%)</span>
-                        <span>₹${slab.tax.toFixed(2)}</span>
-                    </div>
-                `;
-            });
-            
-            oldTotalTaxDiv.innerHTML = `Total Tax: ₹${oldTax.tax.toFixed(2)}`;
-            newTotalTaxDiv.innerHTML = `Total Tax: ₹${newTax.tax.toFixed(2)}`;
-            
-            const savings = oldTax.tax - newTax.tax;
-            taxSavingsDiv.innerHTML = `
-                <h3>Tax Savings</h3>
-                <div class="savings-amount ${savings > 0 ? 'positive' : ''}">
-                    ${savings > 0 ? 'You save: ' : 'No savings'} 
-                    ${savings > 0 ? '₹' + savings.toFixed(2) : ''}
-                </div>
-            `;
-            
-            resultDiv.classList.add('show');
-        }
-    </script>
+    <script src="tax-calculator.js"></script>
 </body>
 </html>
