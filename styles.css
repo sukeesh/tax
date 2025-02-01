@@ -94,6 +94,8 @@ h1::after {
     padding: 1.5rem;
     border: 1px solid rgba(255, 255, 255, 0.3);
     margin-top: 1rem;
+    position: relative;
+    z-index: 1;
 }
 
 .input-section {
@@ -101,6 +103,7 @@ h1::after {
     height: fit-content;
     position: sticky;
     top: 2rem;
+    z-index: 10;
     background: rgba(255, 255, 255, 0.9);
     backdrop-filter: blur(10px);
     padding: 1.5rem;
@@ -123,6 +126,8 @@ h1::after {
     display: block;
     opacity: 1;
     transform: none;
+    position: relative;
+    z-index: 1;
 }
 
 .tax-savings {
@@ -460,12 +465,39 @@ button.loading {
 }
 
 @media (max-width: 1024px) {
+    .container {
+        grid-template-columns: 1fr;
+        padding: 1rem;
+        gap: 1.5rem;
+    }
+
+    .input-section {
+        position: relative;
+        top: 0;
+        margin-bottom: 1.5rem;
+        box-shadow: var(--shadow);
+        z-index: 1;
+    }
+
+    .results-section {
+        position: relative;
+        z-index: 1;
+        width: 100%;
+        display: block;
+        opacity: 1;
+        margin-top: 1rem;
+    }
+
     .comparison-container {
         grid-template-columns: 1fr;
+        gap: 1rem;
     }
-    
+
     .tax-column {
+        width: 100%;
         margin-bottom: 1rem;
+        position: relative;
+        z-index: 1;
     }
 }
 
@@ -961,4 +993,104 @@ h3 {
 
 .developer-link:hover svg {
     transform: rotate(360deg);
+}
+
+/* Responsive design */
+@media (max-width: 1024px) {
+    /* Adjust container layout */
+    .container {
+        grid-template-columns: 1fr;
+        padding: 1rem;
+        gap: 1.5rem;
+    }
+
+    /* Adjust title size */
+    h1 {
+        font-size: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    /* Make input section scrollable */
+    .input-section {
+        position: relative;
+        top: 0;
+        max-height: none;
+        padding: 1rem;
+    }
+
+    /* Adjust tax columns */
+    .comparison-container {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .tax-column {
+        margin-bottom: 1rem;
+    }
+
+    /* Adjust spacing */
+    .page-container {
+        padding: 1rem;
+    }
+
+    /* Make inputs more touch-friendly */
+    input[type="number"] {
+        padding: 0.875rem;
+        font-size: 16px; /* Prevents zoom on iOS */
+    }
+
+    button {
+        padding: 1rem;
+        font-size: 1rem;
+    }
+
+    /* Adjust deduction categories */
+    .deduction-category {
+        padding: 0.75rem;
+    }
+
+    /* Make tax analysis panel more compact */
+    .tax-savings {
+        padding: 1rem;
+    }
+
+    .savings-item {
+        padding: 0.75rem;
+        font-size: 0.9rem;
+    }
+
+    /* Adjust footer */
+    .footer {
+        margin-top: 2rem;
+        padding: 1rem;
+    }
+
+    .developer-link {
+        font-size: 0.9rem;
+    }
+}
+
+/* Additional adjustments for very small screens */
+@media (max-width: 480px) {
+    h1 {
+        font-size: 1.75rem;
+    }
+
+    .input-group {
+        padding: 0.75rem;
+    }
+
+    label {
+        font-size: 0.9rem;
+    }
+
+    .tax-slab {
+        padding: 0.75rem;
+        font-size: 0.9rem;
+    }
+
+    .best-option {
+        font-size: 1rem;
+    }
 } 

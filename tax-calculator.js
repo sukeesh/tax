@@ -291,6 +291,7 @@ function displayResults(oldRegimeTax, newRegimeTax, revisedNewRegimeTax) {
     const bestRegime = Object.entries(taxes).find(([_, tax]) => tax === minTax)[0];
     const maxSavings = Math.max(...Object.values(taxes)) - minTax;
 
+    // Update savings content with better formatting
     savingsContentDiv.innerHTML = `
         <div class="savings-amount">
             <div class="best-option">✨ ${bestRegime} is Best for You</div>
