@@ -38,11 +38,15 @@ function calculateOldRegimeTax(income, deductions) {
     // Calculate taxable income after all deductions
     let taxableIncome = income;
     
+    // Professional Tax
+    taxableIncome = Math.max(0, taxableIncome - deductions.professionalTax);
+    
     // Exempt Income
     taxableIncome = Math.max(0, taxableIncome - (deductions.hra || 0));
     taxableIncome = Math.max(0, taxableIncome - Math.min(deductions.lta || 0, 200000));
     taxableIncome = Math.max(0, taxableIncome - (deductions.child_education || 0));
     taxableIncome = Math.max(0, taxableIncome - (deductions.transport_allowance || 0));
+    taxableIncome = Math.max(0, taxableIncome - (deductions.others || 0));
     
     // Standard Deduction
     taxableIncome = Math.max(0, taxableIncome - deductions.standardDeduction);
@@ -109,114 +113,158 @@ function calculateOldRegimeTax(income, deductions) {
         }
     }
 
-    // Add Health and Education Cess (4%)
+    // Calculate surcharge if applicable with different slabs
+    let surcharge = 0;
+    if (taxableIncome > 50000000) {  // Above 5 Cr
+        surcharge = tax * 0.37;  // 37% surcharge
+        breakdown.push({slab: "Surcharge (>5 Cr)", amount: tax, rate: 37, tax: surcharge});
+    } else if (taxableIncome > 20000000) {  // 2 Cr - 5 Cr
+        surcharge = tax * 0.25;  // 25% surcharge
+        breakdown.push({slab: "Surcharge (2-5 Cr)", amount: tax, rate: 25, tax: surcharge});
+    } else if (taxableIncome > 10000000) {  // 1 Cr - 2 Cr
+        surcharge = tax * 0.15;  // 15% surcharge
+        breakdown.push({slab: "Surcharge (1-2 Cr)", amount: tax, rate: 15, tax: surcharge});
+    } else if (taxableIncome > 5000000) {  // 50L - 1 Cr
+        surcharge = tax * 0.10;  // 10% surcharge
+        breakdown.push({slab: "Surcharge (50L-1 Cr)", amount: tax, rate: 10, tax: surcharge});
+    }
+    tax += surcharge;
+
+    // Add Health and Education Cess (4%) on tax + surcharge
     const cess = tax * 0.04;
     tax += cess;
     
-    if (tax > 0) {
+    if (cess > 0) {
         breakdown.push({slab: "Health & Education Cess", amount: tax - cess, rate: 4, tax: cess});
     }
 
-    return { tax, breakdown };
+    return { tax, breakdown, taxableIncome };
 }
 
 function calculateOldTax(income) {
+    // For old regime, consider professional tax but not other deductions
+    const taxableIncome = Math.max(0, income - 75000 - 2400); // Standard deduction + Professional Tax
     let tax = 0;
     let breakdown = [];
 
-    if (income <= 300000) {
+    if (taxableIncome <= 300000) {
         tax = 0;
-        breakdown.push({slab: "0 - 3,00,000", amount: income, rate: 0, tax: 0});
+        breakdown.push({slab: "0 - 3,00,000", amount: taxableIncome, rate: 0, tax: 0});
     } else {
-        if (income > 300000) {
-            const taxableAmount = Math.min(income - 300000, 400000);
+        if (taxableIncome > 300000) {
+            const taxableAmount = Math.min(taxableIncome - 300000, 400000);
             const slabTax = taxableAmount * 0.05;
             tax += slabTax;
             breakdown.push({slab: "3,00,001 - 7,00,000", amount: taxableAmount, rate: 5, tax: slabTax});
         }
         
-        if (income > 700000) {
-            const taxableAmount = Math.min(income - 700000, 300000);
+        if (taxableIncome > 700000) {
+            const taxableAmount = Math.min(taxableIncome - 700000, 300000);
             const slabTax = taxableAmount * 0.10;
             tax += slabTax;
             breakdown.push({slab: "7,00,001 - 10,00,000", amount: taxableAmount, rate: 10, tax: slabTax});
         }
         
-        if (income > 1000000) {
-            const taxableAmount = Math.min(income - 1000000, 200000);
+        if (taxableIncome > 1000000) {
+            const taxableAmount = Math.min(taxableIncome - 1000000, 200000);
             const slabTax = taxableAmount * 0.15;
             tax += slabTax;
             breakdown.push({slab: "10,00,001 - 12,00,000", amount: taxableAmount, rate: 15, tax: slabTax});
         }
         
-        if (income > 1200000) {
-            const taxableAmount = Math.min(income - 1200000, 300000);
+        if (taxableIncome > 1200000) {
+            const taxableAmount = Math.min(taxableIncome - 1200000, 300000);
             const slabTax = taxableAmount * 0.20;
             tax += slabTax;
             breakdown.push({slab: "12,00,001 - 15,00,000", amount: taxableAmount, rate: 20, tax: slabTax});
         }
         
-        if (income > 1500000) {
-            const taxableAmount = income - 1500000;
+        if (taxableIncome > 1500000) {
+            const taxableAmount = taxableIncome - 1500000;
             const slabTax = taxableAmount * 0.30;
             tax += slabTax;
             breakdown.push({slab: "Above 15,00,000", amount: taxableAmount, rate: 30, tax: slabTax});
         }
     }
-    return { tax, breakdown };
+    return { tax, breakdown, taxableIncome };
 }
 
 function calculateNewTax(income) {
+    // For new regime, consider professional tax but not other deductions
+    const taxableIncome = Math.max(0, income - 75000 - 2400); // Standard deduction + Professional Tax
     let tax = 0;
     let breakdown = [];
 
-    if (income <= 400000) {
+    if (taxableIncome <= 400000) {
         tax = 0;
-        breakdown.push({slab: "0 - 4,00,000", amount: income, rate: 0, tax: 0});
+        breakdown.push({slab: "0 - 4,00,000", amount: taxableIncome, rate: 0, tax: 0});
     } else {
-        if (income > 400000) {
-            const taxableAmount = Math.min(income - 400000, 400000);
+        if (taxableIncome > 400000) {
+            const taxableAmount = Math.min(taxableIncome - 400000, 400000);
             const slabTax = taxableAmount * 0.05;
             tax += slabTax;
             breakdown.push({slab: "4,00,001 - 8,00,000", amount: taxableAmount, rate: 5, tax: slabTax});
         }
         
-        if (income > 800000) {
-            const taxableAmount = Math.min(income - 800000, 400000);
+        if (taxableIncome > 800000) {
+            const taxableAmount = Math.min(taxableIncome - 800000, 400000);
             const slabTax = taxableAmount * 0.10;
             tax += slabTax;
             breakdown.push({slab: "8,00,001 - 12,00,000", amount: taxableAmount, rate: 10, tax: slabTax});
         }
         
-        if (income > 1200000) {
-            const taxableAmount = Math.min(income - 1200000, 400000);
+        if (taxableIncome > 1200000) {
+            const taxableAmount = Math.min(taxableIncome - 1200000, 400000);
             const slabTax = taxableAmount * 0.15;
             tax += slabTax;
             breakdown.push({slab: "12,00,001 - 16,00,000", amount: taxableAmount, rate: 15, tax: slabTax});
         }
         
-        if (income > 1600000) {
-            const taxableAmount = Math.min(income - 1600000, 400000);
+        if (taxableIncome > 1600000) {
+            const taxableAmount = Math.min(taxableIncome - 1600000, 400000);
             const slabTax = taxableAmount * 0.20;
             tax += slabTax;
             breakdown.push({slab: "16,00,001 - 20,00,000", amount: taxableAmount, rate: 20, tax: slabTax});
         }
         
-        if (income > 2000000) {
-            const taxableAmount = Math.min(income - 2000000, 400000);
+        if (taxableIncome > 2000000) {
+            const taxableAmount = Math.min(taxableIncome - 2000000, 400000);
             const slabTax = taxableAmount * 0.25;
             tax += slabTax;
             breakdown.push({slab: "20,00,001 - 24,00,000", amount: taxableAmount, rate: 25, tax: slabTax});
         }
 
-        if (income > 2400000) {
-            const taxableAmount = income - 2400000;
+        if (taxableIncome > 2400000) {
+            const taxableAmount = taxableIncome - 2400000;
             const slabTax = taxableAmount * 0.30;
             tax += slabTax;
             breakdown.push({slab: "Above 24,00,000", amount: taxableAmount, rate: 30, tax: slabTax});
         }
     }
-    return { tax, breakdown };
+
+    // Calculate surcharge if applicable (max 25% for new regime)
+    let surcharge = 0;
+    if (taxableIncome > 20000000) {  // Above 2 Cr
+        surcharge = tax * 0.25;  // 25% surcharge
+        breakdown.push({slab: "Surcharge (>2 Cr)", amount: tax, rate: 25, tax: surcharge});
+    } else if (taxableIncome > 10000000) {  // 1 Cr - 2 Cr
+        surcharge = tax * 0.15;  // 15% surcharge
+        breakdown.push({slab: "Surcharge (1-2 Cr)", amount: tax, rate: 15, tax: surcharge});
+    } else if (taxableIncome > 5000000) {  // 50L - 1 Cr
+        surcharge = tax * 0.10;  // 10% surcharge
+        breakdown.push({slab: "Surcharge (50L-1 Cr)", amount: tax, rate: 10, tax: surcharge});
+    }
+    tax += surcharge;
+
+    // Add Health and Education Cess (4%) on tax + surcharge
+    const cess = tax * 0.04;
+    tax += cess;
+    
+    if (cess > 0) {
+        breakdown.push({slab: "Health & Education Cess", amount: tax - cess, rate: 4, tax: cess});
+    }
+
+    return { tax, breakdown, taxableIncome };
 }
 
 function calculateTax() {
@@ -234,10 +282,12 @@ function calculateTax() {
     // Get all deduction inputs
     const deductions = {
         standardDeduction: 50000,
+        professionalTax: 2400,
         hra: parseFloat(document.getElementById('hra').value) || 0,
         lta: parseFloat(document.getElementById('lta').value) || 0,
         child_education: parseFloat(document.getElementById('child_education').value) || 0,
         transport_allowance: parseFloat(document.getElementById('transport_allowance').value) || 0,
+        others: parseFloat(document.getElementById('others').value) || 0,
         section80c: parseFloat(document.getElementById('section80c').value) || 0,
         section80ccd1b: parseFloat(document.getElementById('section80ccd1b').value) || 0,
         section80d: parseFloat(document.getElementById('section80d').value) || 0,
@@ -318,15 +368,39 @@ function displayResults(oldRegimeTax, newRegimeTax, revisedNewRegimeTax) {
         </div>
     `;
 
-    // Update tax breakdowns with improved formatting
-    updateTaxBreakdown('oldRegimeTaxBreakdown', oldRegimeTax);
-    updateTaxBreakdown('oldTaxBreakdown', newRegimeTax);
-    updateTaxBreakdown('newTaxBreakdown', revisedNewRegimeTax);
+    // Update tax breakdowns with net taxable income
+    updateTaxBreakdown('oldRegimeTaxBreakdown', oldRegimeTax, true);
+    updateTaxBreakdown('oldTaxBreakdown', newRegimeTax, true);
+    updateTaxBreakdown('newTaxBreakdown', revisedNewRegimeTax, true);
 }
 
-function updateTaxBreakdown(elementId, taxData) {
+function updateTaxBreakdown(elementId, taxData, showNetIncome = false) {
     const element = document.getElementById(elementId);
-    const breakdownHTML = taxData.breakdown.map(slab => `
+    let breakdownHTML = '';
+    
+    // Add Net Taxable Income section
+    if (showNetIncome) {
+        let netIncome;
+        if (elementId === 'oldRegimeTaxBreakdown') {
+            // For old regime, use the actual taxable income after all deductions
+            netIncome = taxData.taxableIncome; // We'll add this to the return value of calculateOldRegimeTax
+        } else {
+            // For new regimes, it's income minus standard deduction (75,000)
+            netIncome = taxData.taxableIncome; // We'll add this to return values of calculateNewTax and calculateOldTax
+        }
+        
+        breakdownHTML += `
+            <div class="tax-slab net-income">
+                <div class="tax-slab-range">Net Taxable Income</div>
+                <div class="tax-slab-rate">
+                    <span>₹${formatAmount(netIncome)}</span>
+                </div>
+            </div>
+        `;
+    }
+    
+    // Add tax slabs
+    breakdownHTML += taxData.breakdown.map(slab => `
         <div class="tax-slab">
             <div class="tax-slab-range">${formatSlabRange(slab.slab)}</div>
             <div class="tax-slab-rate">
@@ -338,7 +412,7 @@ function updateTaxBreakdown(elementId, taxData) {
     
     element.innerHTML = breakdownHTML;
     
-    // Update total tax with better alignment
+    // Update total tax
     const totalTaxElement = element.parentElement.querySelector('.total-tax');
     totalTaxElement.innerHTML = `
         <span>Total Tax</span>

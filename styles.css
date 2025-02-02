@@ -1093,4 +1093,33 @@ h3 {
     .best-option {
         font-size: 1rem;
     }
+}
+
+.tax-slab.net-income {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
+    border-radius: 0.75rem;
+    box-shadow: var(--shadow);
+}
+
+.tax-slab.net-income .tax-slab-range {
+    color: var(--text-dark);
+    font-size: 0.9rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.5rem;
+}
+
+.tax-slab.net-income .tax-slab-rate {
+    color: var(--text-dark);
+    font-size: 1.25rem;
+    font-weight: 600;
+    text-align: right;
+}
+
+.tax-slab.net-income .tax-slab-rate span {
+    color: var(--primary-color);
 } 
