@@ -368,32 +368,55 @@ function displayResults(oldRegimeTax, newRegimeTax, revisedNewRegimeTax) {
         </div>
     `;
 
-    // Update tax breakdowns with net taxable income
-    updateTaxBreakdown('oldRegimeTaxBreakdown', oldRegimeTax, true);
-    updateTaxBreakdown('oldTaxBreakdown', newRegimeTax, true);
-    updateTaxBreakdown('newTaxBreakdown', revisedNewRegimeTax, true);
+    // Update tax breakdowns with net taxable income and tags
+    updateTaxBreakdown('oldRegimeTaxBreakdown', oldRegimeTax, true, bestRegime === 'Old Regime');
+    updateTaxBreakdown('oldTaxBreakdown', newRegimeTax, true, bestRegime === 'New Regime');
+    updateTaxBreakdown('newTaxBreakdown', revisedNewRegimeTax, true, bestRegime === 'Revised New Regime');
 }
 
-function updateTaxBreakdown(elementId, taxData, showNetIncome = false) {
+function updateTaxBreakdown(elementId, taxData, showNetIncome = false, isRecommended = false) {
     const element = document.getElementById(elementId);
+    if (!element) return; // Guard clause
+    
+    const column = element.closest('.tax-column');
+    if (!column) return; // Guard clause
+    
+    // Clear existing tags
+    const existingTags = column.querySelectorAll('.column-tag');
+    existingTags.forEach(tag => tag.remove());
+    
+    // Add tags based on column type and recommendation
+    if (elementId === 'newTaxBreakdown') {
+        column.classList.add('highlighted');
+        const latestTag = document.createElement('div');
+        latestTag.className = 'column-tag latest-tag';
+        latestTag.textContent = 'Latest';
+        column.insertBefore(latestTag, column.firstChild);
+        
+        if (isRecommended) {
+            column.classList.add('recommended');
+            const recommendedTag = document.createElement('div');
+            recommendedTag.className = 'column-tag recommended-tag';
+            recommendedTag.textContent = 'Recommended';
+            column.insertBefore(recommendedTag, column.firstChild);
+        }
+    } else if (isRecommended) {
+        column.classList.add('recommended');
+        const recommendedTag = document.createElement('div');
+        recommendedTag.className = 'column-tag recommended-tag';
+        recommendedTag.textContent = 'Recommended';
+        column.insertBefore(recommendedTag, column.firstChild);
+    }
+    
     let breakdownHTML = '';
     
     // Add Net Taxable Income section
     if (showNetIncome) {
-        let netIncome;
-        if (elementId === 'oldRegimeTaxBreakdown') {
-            // For old regime, use the actual taxable income after all deductions
-            netIncome = taxData.taxableIncome; // We'll add this to the return value of calculateOldRegimeTax
-        } else {
-            // For new regimes, it's income minus standard deduction (75,000)
-            netIncome = taxData.taxableIncome; // We'll add this to return values of calculateNewTax and calculateOldTax
-        }
-        
         breakdownHTML += `
             <div class="tax-slab net-income">
                 <div class="tax-slab-range">Net Taxable Income</div>
                 <div class="tax-slab-rate">
-                    <span>₹${formatAmount(netIncome)}</span>
+                    <span>₹${formatAmount(taxData.taxableIncome)}</span>
                 </div>
             </div>
         `;
@@ -413,11 +436,13 @@ function updateTaxBreakdown(elementId, taxData, showNetIncome = false) {
     element.innerHTML = breakdownHTML;
     
     // Update total tax
-    const totalTaxElement = element.parentElement.querySelector('.total-tax');
-    totalTaxElement.innerHTML = `
-        <span>Total Tax</span>
-        <span>₹${formatAmount(taxData.tax)}</span>
-    `;
+    const totalTaxElement = column.querySelector('.total-tax');
+    if (totalTaxElement) {
+        totalTaxElement.innerHTML = `
+            <span>Total Tax</span>
+            <span>₹${formatAmount(taxData.tax)}</span>
+        `;
+    }
 }
 
 // Add resize handler for responsive chart
