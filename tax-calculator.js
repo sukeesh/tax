@@ -381,26 +381,13 @@ function updateTaxBreakdown(elementId, taxData, showNetIncome = false, isRecomme
     const column = element.closest('.tax-column');
     if (!column) return; // Guard clause
     
-    // Clear existing tags
+    // Clear existing tags and classes
     const existingTags = column.querySelectorAll('.column-tag');
     existingTags.forEach(tag => tag.remove());
+    column.classList.remove('highlighted', 'recommended');
     
-    // Add tags based on column type and recommendation
-    if (elementId === 'newTaxBreakdown') {
-        column.classList.add('highlighted');
-        const latestTag = document.createElement('div');
-        latestTag.className = 'column-tag latest-tag';
-        latestTag.textContent = 'Latest';
-        column.insertBefore(latestTag, column.firstChild);
-        
-        if (isRecommended) {
-            column.classList.add('recommended');
-            const recommendedTag = document.createElement('div');
-            recommendedTag.className = 'column-tag recommended-tag';
-            recommendedTag.textContent = 'Recommended';
-            column.insertBefore(recommendedTag, column.firstChild);
-        }
-    } else if (isRecommended) {
+    // Add recommended tag and styling if this is the recommended regime
+    if (isRecommended) {
         column.classList.add('recommended');
         const recommendedTag = document.createElement('div');
         recommendedTag.className = 'column-tag recommended-tag';

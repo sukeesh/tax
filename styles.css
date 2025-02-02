@@ -378,13 +378,6 @@ button.loading {
     position: relative;
 }
 
-.tax-column.highlighted {
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(248, 250, 252, 0.95));
-    border: 2px solid var(--primary-color);
-    transform: translateY(-5px);
-    box-shadow: var(--shadow-lg);
-}
-
 .tax-column.recommended {
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(248, 250, 252, 0.95));
     border: 2px solid var(--success-color);
@@ -392,9 +385,20 @@ button.loading {
     box-shadow: var(--shadow-lg);
 }
 
+.tax-column.recommended .total-tax {
+    background: var(--success-color);
+    color: white;
+    border: none;
+}
+
+.tax-column.recommended .total-tax span {
+    color: white;
+}
+
 .column-tag {
     position: absolute;
     top: -12px;
+    right: 10px;
     padding: 4px 12px;
     border-radius: 12px;
     font-size: 0.75rem;
@@ -402,14 +406,7 @@ button.loading {
     letter-spacing: 0.5px;
 }
 
-.latest-tag {
-    right: 10px;
-    background: var(--primary-color);
-    color: white;
-}
-
 .recommended-tag {
-    left: 10px;
     background: var(--success-color);
     color: white;
 }
